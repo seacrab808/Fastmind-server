@@ -46,7 +46,6 @@ io.on("connection", (socket) => {
     io.to(data.option.roomId).emit("erase");
   });
 
-  // 게임 시작
   socket.on("start_game", (data) => {
     const { roomId, myId } = data;
 
@@ -63,8 +62,8 @@ io.on("connection", (socket) => {
     });
     if (isQuizMaster) {
       answers[data.roomId] = ans;
-      io.to(data.roomId).emit("alert_all", "새로운 답변이 제출되었습니다");
     }
+    io.to(data.roomId).emit("alert_all", "새로운 답변이 제출되었습니다");
     console.log("그림문제:", answers);
   });
 
@@ -73,24 +72,17 @@ io.on("connection", (socket) => {
       userAnswer.userId !== quizMasters[data.roomId] &&
       userAnswer.text === answers[data.roomId]
     ) {
-      // console.log(userAnswer.userId, quizMasters[data.roomId]);
-      // console.log(userAnswer.text, answers[data.roomId]);
+      console.log(userAnswer.userId, quizMasters[data.roomId]);
+      console.log(userAnswer.text, answers[data.roomId]);
       io.to(data.roomId).emit("correct_answer", { winner: userAnswer.userId });
-      quizMasters[data.roomId] = userAnswer.userId; // 출제 권한 이전
-      delete answers[data.roomId]; // 이전 문제 출제자 삭제
-      console.log(quizMasters[data.roomId]);
-
       // 다음 라운드 설정 (필요한 경우)
       // delete quizMasters[roomId];
       // delete answers[roomId];
+      socket.on("end_game", (data) => {
+        delete quizMasters[data.roomId];
+        delete answers[data.roomId];
+      });
     }
-  });
-
-  socket.on("end_game", (data) => {
-    delete quizMasters[data.roomId];
-    delete answers[data.roomId];
-    // console.log("지우고 나서", quizMasters, answers);
-    io.to(data.roomId).emit("game_ended", "게임이 종료되었습니다");
   });
 });
 
