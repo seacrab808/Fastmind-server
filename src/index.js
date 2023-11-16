@@ -26,10 +26,6 @@ const io = new Server(server, {
   },
 });
 
-let quizMasters = {};
-let answers = {};
-console.log("초기", quizMasters, answers);
-
 io.on("connection", (socket) => {
   console.log(socket.id);
 
@@ -44,45 +40,6 @@ io.on("connection", (socket) => {
 
   socket.on("erase", (data) => {
     io.to(data.option.roomId).emit("erase");
-  });
-
-  socket.on("start_game", (data) => {
-    const { roomId, myId } = data;
-
-    quizMasters[roomId] = myId;
-    console.log("this is quizM", quizMasters);
-    io.to(roomId).emit("quiz_master_set", myId);
-    // console.log(quizMasters);
-  });
-
-  socket.on("set_answer", (ans, data) => {
-    // 제출자 객체중에 {roomid: scoketid} 를 만족하는게있는지 찾기
-    const isQuizMaster = Object.entries(quizMasters).some(([key, value]) => {
-      return key === data.roomId && value === data.myId;
-    });
-    if (isQuizMaster) {
-      answers[data.roomId] = ans;
-    }
-    io.to(data.roomId).emit("alert_all", "새로운 답변이 제출되었습니다");
-    console.log("그림문제:", answers);
-  });
-
-  socket.on("submit_answer", (userAnswer, data) => {
-    if (
-      userAnswer.userId !== quizMasters[data.roomId] &&
-      userAnswer.text === answers[data.roomId]
-    ) {
-      console.log(userAnswer.userId, quizMasters[data.roomId]);
-      console.log(userAnswer.text, answers[data.roomId]);
-      io.to(data.roomId).emit("correct_answer", { winner: userAnswer.userId });
-      // 다음 라운드 설정 (필요한 경우)
-      // delete quizMasters[roomId];
-      // delete answers[roomId];
-      socket.on("end_game", (data) => {
-        delete quizMasters[data.roomId];
-        delete answers[data.roomId];
-      });
-    }
   });
 });
 
