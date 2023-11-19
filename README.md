@@ -2,7 +2,13 @@
 
 <img src="https://github.com/LeHiHo/FastMind/assets/37584686/6e7fe4ca-ff6d-4a4d-b572-20e799a8c2c7" width=300>
 
-### 패스트캠퍼스 토이프로젝트2 한조팀의 FastMind 게임 💻 프론트엔드
+### 패스트캠퍼스 토이프로젝트2 한조팀의 FastMind 게임 💻 백엔드
+
+<p align="center">
+  <a href="https://fastmind.vercel.app/">
+    <img src="https://img.shields.io/badge/FastMind-white?style=for-the-badge&logoColor=white" alt="wiki"/>
+  </a>
+</p>
 
 </div>
 
@@ -15,11 +21,10 @@
 1. 게임 모드: 사용자 중 한 명이 출제자가 되어, 퀴즈를 내고 관련된 그림을 그립니다. 그 후, 다른 참여자들이 그림을 바탕으로 퀴즈의 답을 맞추는 대화형 웹 게임입니다.
 2. **협업 모드**: 사용자들은 그림판에 직접 그림을 그리며, 실시간으로 공유하고 채팅을 통해 아이디어를 교환합니다. 이 모드는 회의, 브레인스토밍, 또는 일반 대화에 이상적으로 활용됩니다.
 
-클라이언트 서버는 [이곳](https://github.com/LeHiHo/FastMind)을 클릭해 주세요.  
-채팅 서버는 [이곳](https://github.com/GyoHeon/chat-back)을 클릭해 주세요.
+프론트엔드는 [이곳](https://github.com/LeHiHo/FastMind)을 클릭해 주세요.  
+채팅 서버는 [이곳](https://github.com/GyoHeon/chat-back)을 클릭해 주세요.  
+피그마는 [이곳](https://www.figma.com/file/Hqwygf0k7CoF0BloFTn729/%ED%95%9C%EC%A1%B0?type=design&node-id=0-1&mode=design&t=yNhmQ8W65uAUDQvI-0)을 클릭해 주세요.
 
-TEST용 ID: ivegaeul  
-TEST용 PASSWORD: ivegaeul
 
 <br/>
 
@@ -79,15 +84,22 @@ TEST용 PASSWORD: ivegaeul
 
 <br/>
 
+## 📚 주요 로직
 
-### 그림판
-- **서버 배포**: 프로젝트의 백엔드 서버는 Heroku를 통해 배포되었습니다. node.js/Express/Babel 등을 사용했습니다.
+<details><summary><strong>그림판</strong></summary>
+  
+- **Canvas API**: 본 프로젝트의 그림판 기능은 HTML5의 Canvas API를 활용하여 구현되었습니다.
+- **실시간 통신**: 실시간 사용자 상호작용을 위해 [Socket.io](http://socket.io/)를 사용하였으며, 사용자 간의 그림 데이터 공유 및 통신을 위해 자체적으로 구축한 백엔드 서버에 연결합니다.
+- **서버 배포**: 프로젝트의 백엔드 서버는 Heroku를 통해 배포되었습니다. node.js/Express/Babel 등을 사용했습니다. 
 
-#### 주요 기능
+
+<details><summary><strong>주요 기능</strong></summary>
 
 - **색상 선택**: 사용자는 다양한 색상 팔레트에서 마음대로 색을 선택할 수 있습니다.
 - **그리기 도구**: 부분 지우개와 전체 지우기 기능을 통해 사용자는 쉽게 그림을 수정할 수 있습니다.
 - **굵기 조절**: 사용자는 선의 굵기를 자유롭게 조절하여 다양한 표현을 할 수 있습니다.
+
+그림판에서의 사용자 작업은 다음과 같은 형식으로 서버로 전송됩니다.
 
 ```tsx
 originalMousePosition: {
@@ -109,7 +121,23 @@ originalMousePosition: {
 - **`newMousePosition`**: 새로운 마우스 위치 (x, y 좌표)
 - **`option`**: 작업 옵션 (선택된 색상, 선의 굵기, 방 ID)
 
-### 게임 로직
+</details>
+</details>
+
+<details><summary><strong>게임 로직</strong></summary>
+
+ - 유저 진입 시 게임 소켓에 연결하고 roomId를 기준으로 방을 선정해 유저를 나눕니다.
+ - 게임 시작 버튼 클릭 시 퀴즈 배열의 roomId번 인덱스에 클릭한 클라이언트의 쿠키 내 userId를 지정합니다.
+ - 게임 시작 버튼 클릭 후 모달 내 답안 입력 시 정답 배열의 roomId번 인덱스에 정답을 설정합니다.
+ - 채팅을 친 유저, 채팅 값, roomId와 쿠키 내 userId을 서버에 보냅니다.
+ - 만약 답변을 한 유저가 퀴즈 배열의 roomId번 인덱스와 다르고 답변을 한 유저의 답안이 정답 배열의  roomId번 인덱스와 같다면, 출제자가 아니면서 답변을 맞혔다는 뜻이므로 해당 하는 방 내 모든 클라이언트들에게 승자를 선정해 데이터를 보냅니다.
+ - 다음 게임을 위해 서버에서는 해당하는 roomId번 인덱스의 퀴즈 배열과 정답 배열을 초기화 해줍니다.
+ - 승자 데이터가 쿠키 내 userId와 같다면 정답을 맞혔다는 모달을 띄워줍니다.
+ - 다르다면 타 유저가 정답을 맞혔다는 모달을 띄워줍니다.
+ - 이 후, 게임 시작 버튼 클릭 시 게임이 재시작 됩니다.
+ - ⏰ 게임 중, 언제든 게임 시작 버튼을 눌러도, 해당하는 roomId번 인덱스의 정답 배열 및 퀴즈 배열의 덮어씌움으로 언제든 재 시작이 가능합니다.
+</details>
+
 
 ## 🖌️ 프로젝트 아키텍처
 
@@ -125,7 +153,7 @@ originalMousePosition: {
 |:---------------------:|:-----------------------:|:---------------------:|
 | <img height="100" src="https://avatars.githubusercontent.com/leHiHo" width="100"/> | <img height="100" src="https://avatars.githubusercontent.com/yangjaehyuk" width="100"/>  | <img height="100" src="https://avatars.githubusercontent.com/seacrab808" width="100"/> |
 | [leHiHo](https://github.com/leHiHo) | [yangjaehyuk](https://github.com/yangjaehyuk) | [seacrab808](https://github.com/seacrab808) |
-|<ul><li>인증 인가</li><li>게임 서버 구현</li><li>게임 로직 구현</li><li>배포</li></ul> | <ul><li>REST API 연결</li><li>서버 소켓 연결</li><li>게임 서버 구현</li><li>게임 로직 구현</li><li>게임방 유저 목록 구현</li><li>방 만들기 구현</li><li>폴링 로직 구현</li><li>온라인 유저 목록 구현</li></ul> | <ul><li>그림판 구현</li><li>그림판 소켓 연결</li><li>게임 서버 구현</li><li>게임 서버 배포</li><li>게임방 UI</li></ul>  |
+|<ul><li>게임 로직</li><li>게임 소켓</li><li>배포</li></ul> | <ul><li>게임 로직</li><li>게임 소켓</li></ul> | <ul><li>그림판 구현</li><li>그림판 소켓</li><li>게임 서버</li>  |
 
 <br/>
 
