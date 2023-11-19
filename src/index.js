@@ -1,18 +1,24 @@
-const { Console } = require('console');
-const express = require('express');
+const { Console } = require("console");
+const express = require("express");
 const app = express();
-const http = require('http');
-const { Server } = require('socket.io');
+const http = require("http");
+const { Server } = require("socket.io");
+
+const allowedOrigins = ["https://fastmind.vercel.app"];
 
 // 모든 출처를 허용하고, credentials 옵션을 true로 설정합니다.
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); // 특정 출처만 허용
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin); // 요청이 온 오리진을 허용
+  }
+
   res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Credentials', 'true'); // credentials를 true로 설정
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Credentials", "true"); // credentials를 true로 설정
   next();
 });
 
@@ -20,49 +26,46 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173', // 특정 출처만 허용
+    origin: allowedOrigins, // 특정 출처만 허용
     credentials: true,
-    methods: ['GET', 'POST'],
+    methods: ["GET", "POST"],
   },
 });
 
 let quizMasters = {};
 let answers = {};
 
-io.on('connection', (socket) => {
-  console.log(socket.id);
-
-  socket.on('joinRoom', (roomId) => {
+io.on("connection", (socket) => {
+  socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
   });
 
-  socket.on('drawing', (data) => {
-    io.to(data.option.roomId).emit('drawing', data);
+  socket.on("drawing", (data) => {
+    io.to(data.option.roomId).emit("drawing", data);
   });
 
-  socket.on('erase', (data) => {
-    io.to(data.option.roomId).emit('erase');
+  socket.on("erase", (data) => {
+    io.to(data.option.roomId).emit("erase");
   });
 
-  socket.on('start_game', (data) => {
+  socket.on("start_game", (data) => {
     const { roomId, myId } = data;
 
     quizMasters[roomId] = myId;
-    io.to(roomId).emit('quiz_master_set', myId);
+    io.to(roomId).emit("quiz_master_set", myId);
   });
 
-  socket.on('set_answer', (ans, data) => {
-    // 제출자 객체중에 {roomid: scoketid} 를 만족하는게있는지 찾기
+  socket.on("set_answer", (ans, data) => {
     const isQuizMaster = Object.entries(quizMasters).some(([key, value]) => {
       return key === data.roomId && value === data.myId;
     });
     if (isQuizMaster) {
       answers[data.roomId] = ans;
-      io.to(data.roomId).emit('alert_all', '새로운 문제가 제출되었습니다!');
+      io.to(data.roomId).emit("alert_all", "새로운 문제가 제출되었습니다!");
     }
   });
 
-  socket.on('submit_answer', (userAnswer, data) => {
+  socket.on("submit_answer", (userAnswer, data) => {
     if (
       userAnswer.userId !== quizMasters[data.roomId] &&
       userAnswer.text === answers[data.roomId]
@@ -70,7 +73,7 @@ io.on('connection', (socket) => {
       const { roomId } = data;
       delete quizMasters[roomId];
       delete answers[roomId];
-      io.to(data.roomId).emit('correct_answer', { winner: userAnswer.userId });
+      io.to(data.roomId).emit("correct_answer", { winner: userAnswer.userId });
     }
   });
 });
