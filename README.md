@@ -153,7 +153,7 @@ originalMousePosition: {
 |:---------------------:|:-----------------------:|:---------------------:|
 | <img height="100" src="https://avatars.githubusercontent.com/leHiHo" width="100"/> | <img height="100" src="https://avatars.githubusercontent.com/yangjaehyuk" width="100"/>  | <img height="100" src="https://avatars.githubusercontent.com/seacrab808" width="100"/> |
 | [leHiHo](https://github.com/leHiHo) | [yangjaehyuk](https://github.com/yangjaehyuk) | [seacrab808](https://github.com/seacrab808) |
-|<ul><li>게임 로직</li><li>게임 소켓</li><li>배포</li></ul> | <ul><li>게임 로직</li><li>게임 소켓</li></ul> | <ul><li>그림판 구현</li><li>그림판 소켓</li><li>게임 서버</li>  |
+|<ul><li>게임 로직</li><li>게임 소켓</li><li>배포</li></ul> | <ul><li>게임 로직</li><li>게임 소켓</li></ul> | <ul><li>그림판 소켓</li><li>게임 서버</li>  |
 
 <br/>
 
