@@ -141,7 +141,7 @@ originalMousePosition: {
 
 ## 🖌️ 프로젝트 아키텍처
 
-<img src="https://github.com/LeHiHo/FastMind/assets/37584686/26f7fbcb-9141-4aec-980f-83af4ccc0b27"/>
+<img src="https://github.com/LeHiHo/FastMind/assets/93272421/d12f2a2c-123a-410d-bcca-253e98994453" />
 
 <br/>
 
